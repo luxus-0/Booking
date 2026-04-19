@@ -1,7 +1,11 @@
 package com.booking.booking.common.config;
 
+import com.booking.booking.booking.domain.exception.BookingException;
+import com.booking.booking.booking.domain.exception.InvalidBookingDatesException;
+import com.booking.booking.booking.domain.exception.InvalidGuestCountException;
 import com.booking.booking.common.exception.AccessDeniedException;
 import com.booking.booking.common.exception.ConflictException;
+import com.booking.booking.common.exception.InvalidMoneyException;
 import com.booking.booking.common.exception.ResourceNotFoundException;
 import com.booking.booking.common.response.ApiError;
 import lombok.extern.slf4j.Slf4j;
@@ -56,5 +60,38 @@ public class GlobalExceptionHandler {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiError.of("ACCESS_DENIED", "You do not have permission to access this resource"));
+    }
+
+    @ExceptionHandler(BookingException.class)
+    public ResponseEntity<ApiError> handleDomainException(BookingException ex) {
+        log.warn("Booking domain: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("INVALID_BOOKING_DOMAIN", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidBookingDatesException.class)
+    public ResponseEntity<ApiError> handleInvalidDates(InvalidBookingDatesException ex) {
+        log.warn("Invalid booking dates: {}", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("INVALID_BOOKING_DATES", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidGuestCountException.class)
+    public ResponseEntity<ApiError> handleInvalidGuestCount(InvalidGuestCountException ex) {
+        log.warn("Invalid guest count: {}", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("INVALID_GUEST_COUNT", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidMoneyException.class)
+    public ResponseEntity<ApiError> handleInvalidMoney(InvalidMoneyException ex) {
+        log.warn("Money validation failed: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("INVALID_MONEY_FORMAT", ex.getMessage()));
     }
 }
