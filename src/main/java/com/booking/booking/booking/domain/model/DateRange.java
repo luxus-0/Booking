@@ -1,12 +1,12 @@
-package com.booking.booking.booking.domain.vo;
+package com.booking.booking.booking.domain.model;
 
 import com.booking.booking.booking.domain.exception.InvalidBookingDatesException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public record BookingPeriod(LocalDate checkIn, LocalDate checkOut) {
-    public BookingPeriod {
+public record DateRange(LocalDate checkIn, LocalDate checkOut) {
+    public DateRange {
         if (checkIn == null || checkOut == null) {
             throw new InvalidBookingDatesException("Dates cannot be null");
         }
@@ -25,4 +25,12 @@ public record BookingPeriod(LocalDate checkIn, LocalDate checkOut) {
     public boolean includes(LocalDate date) {
         return !date.isBefore(checkIn) && date.isBefore(checkOut);
     }
+
+    @Override
+    public String toString() {
+        return "DateRange[" +
+                "checkIn=" + checkIn + ", " +
+                "checkOut=" + checkOut + ']';
+    }
+
 }
