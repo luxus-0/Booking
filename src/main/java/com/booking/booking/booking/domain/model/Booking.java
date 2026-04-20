@@ -1,12 +1,20 @@
 package com.booking.booking.booking.domain.model;
 
+import com.booking.booking.booking.domain.event.BookingCancelled;
+import com.booking.booking.booking.domain.event.BookingConfirmed;
+import com.booking.booking.booking.domain.event.BookingCreated;
 import com.booking.booking.booking.domain.exception.BookingCannotBeCancelledException;
 import com.booking.booking.booking.domain.exception.InvalidBookingStatusException;
-import com.booking.booking.common.vo.Money;
 import com.booking.booking.booking.domain.vo.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,7 +26,10 @@ public class Booking {
     private final PropertyId propertyId;
     private final RoomId roomId;
 
-    private BookingPeriod period;
+    private final List<Object> domainEvents = new ArrayList<>();
+
+
+    private DateRange period;
     private GuestCount guestsCount;
     private Money money;
     private Status status;
@@ -28,12 +39,60 @@ public class Booking {
 
     private Audit audit;
 
+    public static Booking create(
+            BookingId id,
+            UserId userId,
+            PropertyId propertyId,
+            RoomId roomId,
+            DateRange period,
+            GuestCount guestsCount,
+            Money money,
+            Instant expiresAt
+    ) {
+        Booking booking = Booking.builder()
+                .id(id)
+                .userId(userId)
+                .propertyId(propertyId)
+                .roomId(roomId)
+                .period(period)
+                .guestsCount(guestsCount)
+                .money(money)
+                .expiresAt(expiresAt)
+                .status(Status.PENDING)
+                .audit(Audit.create())
+                .build();
+
+        booking.domainEvents.add(new BookingCreated(
+                id,
+                userId,
+                propertyId,
+                roomId,
+                period,
+                guestsCount,
+                money,
+                Instant.now()
+        ));
+
+        return booking;
+    }
+
     public void confirm() {
         if (this.status != Status.PENDING) {
             throw new InvalidBookingStatusException("Only PENDING bookings can be confirmed");
         }
         this.status = Status.CONFIRMED;
         this.audit = audit.update();
+
+        domainEvents.add(new BookingConfirmed(
+                this.id,
+                this.userId,
+                this.propertyId,
+                this.roomId,
+                this.period,
+                this.guestsCount,
+                this.money,
+                Instant.now()
+        ));
     }
 
     public boolean isCancellable() {
@@ -47,9 +106,15 @@ public class Booking {
         this.status = Status.CANCELLED;
         this.cancellation = new CancellationDetails(Instant.now(), reason);
         this.audit = audit.update();
+
+        domainEvents.add(new BookingCancelled(
+                this.id,
+                reason,
+                Instant.now()
+        ));
     }
 
-    public void changePeriod(BookingPeriod newPeriod) {
+    public void changePeriod(DateRange newPeriod) {
         if (this.status != Status.PENDING) {
             throw new InvalidBookingStatusException("Dates can only be changed for PENDING bookings");
         }
