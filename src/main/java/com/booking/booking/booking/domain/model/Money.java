@@ -1,4 +1,4 @@
-package com.booking.booking.common.vo;
+package com.booking.booking.booking.domain.model;
 
 import com.booking.booking.common.exception.InvalidMoneyException;
 
