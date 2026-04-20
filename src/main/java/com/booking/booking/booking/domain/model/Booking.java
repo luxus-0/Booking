@@ -65,11 +65,9 @@ public class Booking {
         booking.domainEvents.add(new BookingCreated(
                 id,
                 userId,
-                propertyId,
-                roomId,
-                period,
-                guestsCount,
                 money,
+                period,
+                Instant.now(),
                 Instant.now()
         ));
 
@@ -86,10 +84,6 @@ public class Booking {
         domainEvents.add(new BookingConfirmed(
                 this.id,
                 this.userId,
-                this.propertyId,
-                this.roomId,
-                this.period,
-                this.guestsCount,
                 this.money,
                 Instant.now()
         ));
