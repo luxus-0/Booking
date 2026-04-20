@@ -3,6 +3,7 @@ package com.booking.booking.common.config;
 import com.booking.booking.booking.domain.exception.BookingException;
 import com.booking.booking.booking.domain.exception.InvalidBookingDatesException;
 import com.booking.booking.booking.domain.exception.InvalidGuestCountException;
+import com.booking.booking.booking.domain.exception.RoomNotAvailableException;
 import com.booking.booking.common.exception.AccessDeniedException;
 import com.booking.booking.common.exception.ConflictException;
 import com.booking.booking.common.exception.InvalidMoneyException;
@@ -93,5 +94,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ApiError.of("INVALID_MONEY_FORMAT", ex.getMessage()));
+    }
+
+    @ExceptionHandler(RoomNotAvailableException.class)
+    public ResponseEntity<ApiError> handleRoomNotAvailable(RoomNotAvailableException ex) {
+        log.warn("Room availability conflict: {}", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ApiError.of("ROOM_NOT_AVAILABLE", ex.getMessage()));
     }
 }
