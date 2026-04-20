@@ -1,6 +1,7 @@
 package com.booking.booking.booking.domain.repository;
 
 import com.booking.booking.booking.domain.model.Booking;
+import com.booking.booking.booking.domain.model.DateRange;
 import com.booking.booking.booking.domain.vo.*;
 
 import java.util.List;
@@ -13,6 +14,6 @@ public interface BookingRepository {
     List<Booking> findAllByUserId(UserId userId);
     List<Booking> findActiveByPropertyId(PropertyId propertyId);
 
-    boolean hasConflictingBooking(RoomId roomId, BookingPeriod bookingPeriod);
+    boolean hasConflictingBooking(RoomId roomId, DateRange dateRange);
 
 }
